@@ -40,10 +40,9 @@ def load_data_from_file(filename):
     
     return u_data, x_data, y_data
 
-
 def create_contour_plots(u, x, y, time_indices=None,time=1):
     
-    output_dir = 'results/plots'
+    output_dir = 'plot_results/truncated_admm'
     os.makedirs(output_dir, exist_ok=True)
     
     """创建等高线图"""
@@ -76,13 +75,14 @@ def create_contour_plots(u, x, y, time_indices=None,time=1):
         plt.colorbar(contour, ax=axes[i])
     
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, f"newton_t_{time}.png"), dpi=1000)
+    # plt.savefig(f"admm_t_{time}.png", dpi=1000)
+    plt.savefig(os.path.join(output_dir, f"truncated_admm_t_{time}.png"), dpi=1000)
+    
 
 def main():
     """主函数"""
     # 加载数据
-    data_file = "H:/undergraduate/scientific_research/allen_cahn_equation_simulation/serial/data_newton.txt"
-    
+    data_file = "H:/undergraduate/scientific_research/allen_cahn_equation_simulation/serial/data_truncated_admm.txt"
     if not os.path.exists(data_file):
         print(f"数据文件 {data_file} 不存在")
         print("请先运行C++程序生成数据")

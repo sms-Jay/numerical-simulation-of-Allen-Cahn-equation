@@ -57,13 +57,13 @@ void saveDataToFile(const vector<vector<vector<double>>>& u, const string& filen
     outFile << timeSteps << " " << xSize << " " << ySize << endl;
     
     for (int x = 0; x < xSize; ++x) {
-        outFile << static_cast<double>(x);
+        outFile << static_cast<double>(x + 0.5);
         if (x < xSize - 1) outFile << " ";
     }
     outFile << endl;
     
     for (int y = 0; y < ySize; ++y) {
-        outFile << static_cast<double>(y);
+        outFile << static_cast<double>(y + 0.5);
         if (y < ySize - 1) outFile << " ";
     }
     outFile << endl;
@@ -119,8 +119,8 @@ public:
         // Initialize
         for(int i = 0; i < Nx; i++){
             for(int j = 0; j < Ny; j++){
-                double x = i * dx - 1.0;
-                double y = j * dy - 1.0;
+                double x = (i + 0.5) * dx - 1.0;
+                double y = (j + 0.5) * dy - 1.0;
                 int idx = i * Ny + j;
                 u[0][idx] = ini_3(x, y);  
             }
@@ -284,15 +284,14 @@ public:
     }
 
     void solve(){
-        ofstream energy_file("energy_newton.txt");
-        energy_file << fixed << setprecision(12);
+        ofstream history_file("history_newton.txt");
+        history_file << "Begin: dt = " << dt << ", Nx = Ny = " << Nx << ", Nt = " << Nt << ", epsilon = " << ep << "." << endl;
         
         for(int n = 0; n < Nt; n++){
             auto u_n = u[n];
             Energy[n] = energy(u_n);
             
-            cout << "Time step " << n << "/" << Nt << ", Energy = " << Energy[n] << endl;
-            energy_file << n << " " << Energy[n] << endl;
+            history_file << "time step " << n << "/" << Nt << ", Energy = " << Energy[n] << endl;
             
             u[n+1] = newton(u_n, 1e-8, 1e5);  
             
@@ -304,15 +303,14 @@ public:
             // check: energy decrease
             double next_energy = energy(u[n+1]);
             if (next_energy > Energy[n] + 1e-8) {
-                cout << "WARNING: Energy increased at time step " << n 
+                history_file << "WARNING: Energy increased at time step " << n 
                      << " from " << Energy[n] << " to " << next_energy << endl;
             }
         }
         
         Energy[Nt] = energy(u[Nt]);
-        cout << "Final Energy = " << Energy[Nt] << endl;
-        energy_file << Nt << " " << Energy[Nt] << endl;
-        energy_file.close();
+        history_file << "time step " << Nt << "/" << Nt << ", energy = " << Energy[Nt] << endl;
+        history_file.close();
     }
     
     vector<vector<double>> vec_to_arr(const vector<double>& a){
@@ -352,6 +350,10 @@ int main(){
     clock_t end = clock();
     double cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
     
+    ofstream history_file("history_newton.txt", ios::app);
+    history_file << "cpu_time_used : "<< cpu_time_used << " seconds." << endl << endl;
+    history_file.close();
+
     auto U = allen_cahn_u.getU();
     saveDataToFile(U, "data_newton.txt");
     
