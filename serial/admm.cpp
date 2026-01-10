@@ -26,6 +26,7 @@ double ini_3(double x, double y){
 
 // safe F
 double F(double t, double theta){
+    t = max(EPS, min(1.0 - EPS, t));
     return t*log(t) + (1-t)*log(1-t) + theta*t*(1-t);
 }
 
@@ -373,8 +374,8 @@ public:
     }
     
     void solve(){
-        ofstream history_file("history_admm.txt", ios::app);
-
+        ofstream history_file("H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/history/history_admm.txt", ios::app);
+        history_file << fixed << setprecision(10);
         history_file << "Begin: dt = " << dt << ", Nx = Ny = " << Nx << ", Nt = " << Nt << ", epsilon = " << ep << "." << endl;
         for(int n = 0; n < Nt; n++){
             auto Un = u[n];
@@ -426,7 +427,7 @@ int main(){
     double dt = 1e10;  
     int Nx = 100;
     int Ny = 100;
-    int Nt = 50;      
+    int Nt = 1;      
     double ep = 0.05;
     
     allen_cahn_equation_admm allen_cahn_u(dt, Nt, Nx, Ny, ep);
@@ -436,12 +437,12 @@ int main(){
     clock_t end = clock();
     double cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
     
-    ofstream history_file("history_admm.txt", ios::app);
+    ofstream history_file("H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/history/history_admm.txt", ios::app);
     history_file << "cpu_time_used : "<< cpu_time_used << " seconds." << endl << endl;
     history_file.close();
 
     auto U = allen_cahn_u.getU();
-    saveDataToFile(U, "data_admm.txt");
+    saveDataToFile(U, "H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/data/data_admm.txt");
     
     cout << "admm CPU time: " << cpu_time_used << " s." << endl;
     system("pause");

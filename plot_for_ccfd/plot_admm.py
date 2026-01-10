@@ -14,10 +14,10 @@ def load_data_from_file(filename):
         y_size = int(metadata[2])
         
         # 读取x坐标
-        x_data = np.array([float(x) for x in f.readline().split()])/50-1.0
+        x_data = np.array([float(x) for x in f.readline().split()])/512-1.0
         
         # 读取y坐标
-        y_data = np.array([float(y) for y in f.readline().split()])/50-1.0
+        y_data = np.array([float(y) for y in f.readline().split()])/512-1.0
         
         # 初始化u数组
         u_data = np.zeros((time_steps, x_size, y_size))
@@ -42,7 +42,7 @@ def load_data_from_file(filename):
 
 def create_contour_plots(u, x, y, time_indices=None,time=1):
     
-    output_dir = 'plot_results/admm'
+    output_dir = 'results/plot/admm'
     os.makedirs(output_dir, exist_ok=True)
     
     """创建等高线图"""
@@ -80,7 +80,7 @@ def create_contour_plots(u, x, y, time_indices=None,time=1):
 def main():
     """主函数"""
     # 加载数据
-    data_file = "H:/undergraduate/scientific_research/allen_cahn_equation_simulation/serial/data_admm.txt"
+    data_file = "H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/data/data_ccfd_admm_parallel.txt"
     if not os.path.exists(data_file):
         print(f"数据文件 {data_file} 不存在")
         print("请先运行C++程序生成数据")

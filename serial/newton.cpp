@@ -266,7 +266,7 @@ public:
             auto u_new = conjugate_gradient(u_k, b_tilde, 1e-6, 1e4);
             double r_norm = 0.0;
             for(int i = 0; i < N; i++){
-                u_new[i] = max(EPS, min(1.0 - EPS, u_new[i]));
+                // u_new[i] = max(EPS, min(1.0 - EPS, u_new[i]));
                 r_norm += (u_new[i] - u_k[i]) * (u_new[i] - u_k[i]);
             }
             r_norm = sqrt(r_norm);
@@ -284,7 +284,7 @@ public:
     }
 
     void solve(){
-        ofstream history_file("history_newton.txt");
+        ofstream history_file("H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/history/history_newton.txt");
         history_file << "Begin: dt = " << dt << ", Nx = Ny = " << Nx << ", Nt = " << Nt << ", epsilon = " << ep << "." << endl;
         
         for(int n = 0; n < Nt; n++){
@@ -297,7 +297,7 @@ public:
             
             // Protection
             for (int i = 0; i < N; i++) {
-                u[n+1][i] = max(EPS, min(1.0 - EPS, u[n+1][i]));
+                // u[n+1][i] = max(EPS, min(1.0 - EPS, u[n+1][i]));
             }
             
             // check: energy decrease
@@ -350,12 +350,12 @@ int main(){
     clock_t end = clock();
     double cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
     
-    ofstream history_file("history_newton.txt", ios::app);
+    ofstream history_file("H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/history/history_newton.txt", ios::app);
     history_file << "cpu_time_used : "<< cpu_time_used << " seconds." << endl << endl;
     history_file.close();
 
     auto U = allen_cahn_u.getU();
-    saveDataToFile(U, "data_newton.txt");
+    saveDataToFile(U, "H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/data/data_newton.txt");
     
     cout << "newton CPU time: " << cpu_time_used << " s." << endl;
     system("pause");

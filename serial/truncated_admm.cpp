@@ -391,7 +391,7 @@ public:
     }
     
     void solve(){
-        ofstream history_file("history_truncated_admm.txt", ios::app);
+        ofstream history_file("H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/history/history_truncated_admm.txt", ios::app);
 
         history_file << "Begin: dt = " << dt << ", Nx = Ny = " << Nx << ", Nt = " << Nt << ", epsilon = " << ep << "." << endl;
         for(int n = 0; n < Nt; n++){
@@ -444,7 +444,7 @@ int main(){
     double dt = 1e10;  
     int Nx = 100;
     int Ny = 100;
-    int Nt = 50;      
+    int Nt = 1;      
     double ep = 0.05;
     
     allen_cahn_equation_admm allen_cahn_u(dt, Nt, Nx, Ny, ep);
@@ -454,12 +454,12 @@ int main(){
     clock_t end = clock();
     double cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
 
-    ofstream history_file("history_truncated_admm.txt", ios::app);
+    ofstream history_file("H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/history/history_truncated_admm.txt", ios::app);
     history_file << "cpu_time_used : "<< cpu_time_used << " seconds." << endl << endl;
     history_file.close();
 
     auto U = allen_cahn_u.getU();
-    saveDataToFile(U, "data_truncated_admm.txt");
+    saveDataToFile(U, "H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/data/data_truncated_admm.txt");
     
     cout << "truncated_admm CPU time: " << cpu_time_used << " s." << endl;
     system("pause");
