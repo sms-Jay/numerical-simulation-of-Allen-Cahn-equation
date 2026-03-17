@@ -119,8 +119,8 @@ public:
         #pragma omp parallel for collapse(2) schedule(static)
         for(int i = 0; i < Nx; i++){
             for(int j = 0; j < Ny; j++){
-                double x = (i + 0.5) * dx - 1.0;
-                double y = (j + 0.5) * dy - 1.0;
+                double x = (i + 0.5) * dx;
+                double y = (j + 0.5) * dy;
                 int idx = i * Ny + j;
                 u[0][idx] = ini_1(x, y);  
             }

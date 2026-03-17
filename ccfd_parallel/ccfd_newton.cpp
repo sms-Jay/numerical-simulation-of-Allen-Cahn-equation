@@ -18,7 +18,7 @@ double ini_1(double x, double y){
 }
 
 double ini_2(double x, double y){
-    if(abs(x)<=0.35 && abs(y)<=0.35) return 1e-5;
+    if(abs(x-1)<=0.35 && abs(y-1)<=0.35) return 1e-5;
     else return 1-1e-5;
 }
 
@@ -193,7 +193,7 @@ private:
     double dt;
     double ep;
     double ep2;
-    double theta = 4.0;
+    double theta = 3.0;
     
     StaggeredGrid grid;
     int Nx, Ny, N;
@@ -225,8 +225,8 @@ public:
         // #pragma omp parallel for collapse(2) schedule(static)
         for(int i = 0; i < Nx; i++){
             for(int j = 0; j < Ny; j++){
-                double x = (i + 0.5) * dx - 1.0;
-                double y = (j + 0.5) * dy - 1.0;
+                double x = (i + 0.5) * dx;
+                double y = (j + 0.5) * dy;
                 int idx = grid.idx_center(i, j);
                 u[0][idx] = ini_3(x, y);
             }
@@ -390,7 +390,7 @@ public:
             history_file << "time step " << n << "/" << Nt 
                          << ", energy = " << Energy[n];
 
-            u[n+1] = newton(u_n, 1e-8, 1e3);
+            u[n+1] = newton(u_n, 1e-6, 1e4);
             
             double r_norm = residual(u[n], u[n+1]);
             history_file << ", residual: " << r_norm << endl;
@@ -476,7 +476,7 @@ int main(){
     int desired_threads = 16;
     omp_set_num_threads(desired_threads);
     
-    double dt = 1e10;  
+    double dt = 1;  
     int Nx = 1024;
     int Ny = 1024;
     int Nt = 50;      

@@ -8,6 +8,9 @@
 #include <omp.h>
 #include <complex>
 #include "fft_2d_solver.h"
+#include <string>
+#include <sstream>
+
 using namespace std;
 
 const double PI = 3.1415926535897932384626;
@@ -18,7 +21,7 @@ double ini_1(double x, double y){
 }
 
 double ini_2(double x, double y){
-    if(abs(x-1)<=0.35 && abs(y-1)<=0.35) return 1e-5;
+    if(abs(x)<=0.35 && abs(y)<=0.35) return 1e-5;
     else return 1-1e-5;
 }
 
@@ -193,7 +196,7 @@ private:
     double dt;
     double ep;
     double ep2;
-    double theta = 5.0;
+    double theta = 4.0;
     
     StaggeredGrid grid;
     int Nx, Ny, N;
@@ -202,6 +205,15 @@ private:
     vector<vector<double>> u;  
     vector<vector<vector<double>>> U;  
     vector<double> Energy;
+    
+    // 新增：保存绘图数据
+    vector<double> residual_history;
+    vector<double> min_value_history;
+    vector<double> max_value_history;
+    vector<int> admm_iterations;
+    vector<double> admm_primal_residual_history;
+    vector<int> admm_iteration_numbers;
+    bool first_step_admm_saved;
     
     FFT2DSolver fft_solver;
     
@@ -225,13 +237,21 @@ public:
         U.resize(Nt + 1, vector<vector<double>>(Nx, vector<double>(Ny, 0.0)));
         Energy.resize(Nt + 1, 0.0);
         
+        // 初始化历史记录数组
+        residual_history.resize(Nt + 1, 0.0);
+        min_value_history.resize(Nt + 1, 0.0);
+        max_value_history.resize(Nt + 1, 0.0);
+        admm_iterations.resize(Nt + 1, 0);
+
+        first_step_admm_saved = false;
+        
         // #pragma omp parallel for collapse(2) schedule(static)
         for(int i = 0; i < Nx; i++){
             for(int j = 0; j < Ny; j++){
                 double x = (i + 0.5) * dx;
                 double y = (j + 0.5) * dy;
                 int idx = grid.idx_center(i, j);
-                u[0][idx] = ini_3(x, y);  
+                u[0][idx] = ini_1(x, y);  
             }
         }
     }
@@ -412,7 +432,7 @@ public:
         return safe_log_ratio(u2) + theta * (1 - 2 * un) - y - rho * (u1 - u2);
     }
     
-    vector<double> admm(vector<double>& Un, int max_iter, double tolerance){
+    vector<double> admm(vector<double>& Un, int max_iter, double tolerance, int time_step){
         double rho = 10.0;
         double tau = 1.5;
         double mu = 10.0;
@@ -424,9 +444,18 @@ public:
         vector<double> Y(N, 0.0);
         
         double prev_energy = energy(Un);
+        int iter_count = 0;
         
-        for(int k = 1; k <= max_iter; k++){
+        if (time_step == 0) {
+            admm_primal_residual_history.clear();
+            admm_iteration_numbers.clear();
+            first_step_admm_saved = true;
+            cout << "\n=== Recording ADMM iteration history for first time step ===" << endl;
+        }
 
+        for(int k = 1; k <= max_iter; k++){
+            iter_count = k;
+            
             auto b = rhs(Un, Y, rho, U_2);
             U_1 = solve_with_fft_matrix_free(b, rho);  
             // U_1 = conjugate_gradient(b, U_1, 1e-8, rho, 1000);  
@@ -447,6 +476,13 @@ public:
             r = sqrt(r);
             s = sqrt(s);
             
+            // 保存第一个时间步的迭代历史（原始残差r）
+            if (time_step == 0) {
+                admm_primal_residual_history.push_back(r);
+                admm_iteration_numbers.push_back(k);
+                
+            }
+
             if(r > mu * s)    rho = gamma * rho;
             else if(s > mu * r)    rho = rho / gamma;
             else rho = rho;
@@ -469,10 +505,49 @@ public:
                  << " to " << new_energy << endl;
         }
         
+        // 保存ADMM迭代次数
+        admm_iterations[time_step] = iter_count;
+        
         return Un;
     }
     
-    // main
+    // 新增：计算并保存保界性信息
+    void compute_bounds(const vector<double>& u_vec, double& min_val, double& max_val) {
+        min_val = *min_element(u_vec.begin(), u_vec.end());
+        max_val = *max_element(u_vec.begin(), u_vec.end());
+    }
+
+    // 新增：保存ADMM迭代残差历史到文件
+    void save_admm_residual_history() {
+        if (!first_step_admm_saved || admm_iteration_numbers.empty()) {
+            cout << "No ADMM residual history data to save." << endl;
+            return;
+        }
+        
+        string filename = "H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/plots/admm_residual_data.txt";
+        ofstream history_file(filename);
+        
+        if (!history_file.is_open()) {
+            cerr << "Cannot open file: " << filename << endl;
+            return;
+        }
+        
+        history_file << "# ADMM iteration residual history for first time step" << endl;
+        history_file << "# iteration primal_residual" << endl;
+        
+        for (size_t i = 0; i < admm_iteration_numbers.size(); i++) {
+            history_file << admm_iteration_numbers[i] << " "
+                        << scientific << setprecision(8)
+                        << admm_primal_residual_history[i] << endl;
+        }
+        
+        history_file.close();
+        cout << "\nADMM residual history saved to: " << filename << endl;
+        cout << "Total iterations recorded: " << admm_iteration_numbers.size() << endl;
+    }
+
+    
+    // 修改后的 solve 函数
     void solve(){
         ofstream history_file("H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/history/history_ccfd_admm_parallel.txt", ios::app);
         history_file << "Begin: dt = " << dt << ", Nx = " << Nx 
@@ -482,17 +557,42 @@ public:
         int num_threads = omp_get_max_threads();
         cout << "Using " << num_threads << " threads, staggered grid" << endl;
         
+        // 打开专门用于绘图的数据文件
+        ofstream energy_file("H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/plots/energy_data.txt");
+        ofstream residual_file("H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/plots/residual_data.txt");
+        ofstream bounds_file("H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/plots/bounds_data.txt");
+        ofstream admm_iter_file("H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/plots/admm_iterations.txt");
+        
+        energy_file << "# time_step energy" << endl;
+        residual_file << "# time_step residual" << endl;
+        bounds_file << "# time_step min_value max_value" << endl;
+        admm_iter_file << "# time_step admm_iterations" << endl;
+        
         for(int n = 0; n < Nt; n++){
             auto Un = u[n];
             Energy[n] = energy(Un);
             
+            // 计算并保存保界性数据
+            double min_val, max_val;
+            compute_bounds(Un, min_val, max_val);
+            min_value_history[n] = min_val;
+            max_value_history[n] = max_val;
+            
+            // 写入绘图数据
+            energy_file << n << " " << Energy[n] << endl;
+            bounds_file << n << " " << min_val << " " << max_val << endl;
+            
             history_file << "time step " << n << "/" << Nt 
                          << ", energy = " << Energy[n];
             
-            u[n+1] = admm(Un, 1000, 1e-6);
+            u[n+1] = admm(Un, 1000, 1e-8, n);
             
             double r_norm = residual(u[n], u[n+1]);
-            history_file << ", residual: " << r_norm << endl;
+            residual_history[n] = r_norm;
+            residual_file << n << " " << r_norm << endl;
+            admm_iter_file << n << " " << admm_iterations[n] << endl;
+            
+            history_file << ", residual: " << r_norm << ", ADMM iterations: " << admm_iterations[n] << endl;
             
             double next_energy = energy(u[n+1]);
             if (next_energy > Energy[n] + 1e-8) {
@@ -500,12 +600,29 @@ public:
                      << " from " << Energy[n] << " to " << next_energy << endl;
             }
         }
+        
+        // 最后一个时间步的数据
         Energy[Nt] = energy(u[Nt]);
+        double min_val, max_val;
+        compute_bounds(u[Nt], min_val, max_val);
+        
+        energy_file << Nt << " " << Energy[Nt] << endl;
+        bounds_file << Nt << " " << min_val << " " << max_val << endl;
+        
         history_file << "time step " << Nt << "/" << Nt 
                      << ", energy = " << Energy[Nt] << endl;
+        
         history_file.close();
+        energy_file.close();
+        residual_file.close();
+        bounds_file.close();
+        admm_iter_file.close();
+        
+       // 保存ADMM迭代残差历史
+        save_admm_residual_history();
     }
-
+    
+    
     vector<vector<double>> vec_to_arr(const vector<double>& a){
         vector<vector<double>> A(Nx, vector<double>(Ny, 0.0));
         #pragma omp parallel for collapse(2) schedule(static)
@@ -576,10 +693,10 @@ int main(){
     int desired_threads = 16;  
     omp_set_num_threads(desired_threads);
     
-    double dt = 1;  
-    int Nx = 1024;
-    int Ny = 1024;
-    int Nt = 50;      
+    double dt = 1e-2;  
+    int Nx = 256;
+    int Ny = 256;
+    int Nt = 100;      
     double ep = 0.05;
     
     allen_cahn_equation_admm_staggered allen_cahn_u(dt, Nt, Nx, Ny, ep);
@@ -597,6 +714,11 @@ int main(){
     saveDataToFile(U, "H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/data/data_ccfd_admm_parallel.txt");
     
     cout << "admm_staggered CPU time: " << cpu_time_used << " s." << endl;
+    cout << "\nTo generate plots, run:" << endl;
+    cout << "  cd H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/plots" << endl;
+    cout << "  python plot_results.py" << endl;
+    cout << "\nMake sure you have numpy and matplotlib installed:" << endl;
+    cout << "  pip install numpy matplotlib" << endl;
     
     return 0;
 }

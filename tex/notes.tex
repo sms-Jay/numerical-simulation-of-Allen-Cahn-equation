@@ -111,13 +111,9 @@ u_0(x,y)=\frac{1+\sin{2\pi x}\sin {2\pi y}}{3}
     \begin{tabular}{c|c|c|c|c|c}
     算法&判断收敛阈值&cpu\_time(s)&主迭代次数(次)& 能量 &残量\\
     \hline
-    truncated\_admm & 1e-6 & 17.521 & admm:71 & 1.23249 & 2.04158e-05\\
-    \hline 
-    non\_cg\_admm  & 1e-6 & 18.912 & admm:26 & 1.23249 & 3.66484e-05\\
-    \hline 
-    non\_fft\_admm  & 1e-6 & 8.907 & admm:27 & 1.23249 & 2.91842e-05\\
+    ccfd\_admm & 1e-6 & 5.839 & admm:25 & 1.23558 & 2.56909e-05\\
     \hline
-    newton & 1e-8 & 2.963 & newton:5 & 1.23249 & 1.85867e-05\\
+    ccfd\_newton & 1e-6 & 8.905 & newton:4 & 1.23558 & 2.1429e-05\\
 
     \end{tabular}
     \caption{随机初值数值结果}
@@ -128,14 +124,9 @@ u_0(x,y)=\frac{1+\sin{2\pi x}\sin {2\pi y}}{3}
     \centering
     \begin{tabular}{c|c|c|c|c|c}
     算法&判断收敛阈值&cpu\_time(s)&主迭代次数(次)& 能量 & 残量\\
+    ccfd\_admm & 1e-6 & 9.746 & admm:42 & 0.595445 & 2.19245e-05\\
     \hline
-    truncated\_admm & 1e-6 & 15.496 & admm:82 & 0.595444 & 4.07057e-05\\
-    \hline 
-    non\_cg\_admm  & 1e-6 & 19.68 & admm:41 & 0.595444 & 3.30783e-05\\
-    \hline 
-    non\_fft\_admm  & 1e-6 & 10.935 & admm:42 & 0.595444 & 2.18749e-05\\
-    \hline
-    newton &  & 21.845 & newton:18 & 0.595444 & 1.02206e-05\\
+    ccfd\_newton & 1e-6 & 18.377 & newton:7 & 0.595445 & 1.50957e-05\
 
     \end{tabular}
     \caption{光滑初值数值结果}
