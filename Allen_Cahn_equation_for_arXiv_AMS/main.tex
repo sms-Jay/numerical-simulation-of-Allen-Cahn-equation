@@ -49,7 +49,8 @@
 \newcommand\ehx{{\mathcal{E}^x_h}}
 \newcommand\ehy{{\mathcal{E}^y_h}}
 \newcommand\eh{{\vec{\mathcal{E}_h}}}
-
+\newcommand{\thmcite[2]}{Theorem~{#2}~of~\cite{#1}}
+\newcommand\corcite[2]{Corollary~{#2}~of~\cite{#1}}
 %% Custom packages
 \usepackage{amsmath}
 \usepackage{multirow}
@@ -101,7 +102,17 @@ analysis; Energy stability.}
 
 %    Abstract is required.
 \begin{abstract}
-The Allen-Cahn equation with Flory-Huggins potential is a fundamental and crucial model in phase field simulation for describing phase separation phenomena, which servers as a core tool in diverse branches of natural sciences. The numerical simulation of Allen-Cahn equation is of great importance but poses significant challenges due to the strong nonlinearity and the presence of logarithmic singularities at $u=0,1$ in Flory-Huggins potential. In this paper, we consider convex splitting schemes to preserve this bound and guarantee unconditional unique solvability, which reduces the numerical simulation to solving the nonlinear system arising from spatial discretization at each time step. We propose an iterative solver that is specially designed for singular nonlinear systems based on the alternating direction method of multipliers (ADMM) with the cell-centered finite difference (CCFD) method in spatial discretization. Our theoretical contributions are twofold: (a) a proof of the well-posedness and discrete energy stability to the convex splitting scheme; (b) a rigorous establishment of the unconditional convergence and bound-preserving property for the embedded ADMM solver, effectively liberating it from time-step constraints or strict separation conditions. Comprehensive numerical experiments serve to validate our proposed ADMM framework, where its theoretical predictions are fully borne out in practice, showcasing superior efficiency and robustness.
+The Allen-Cahn equation with Flory-Huggins potential is a fundamental and crucial model in phase field simulation for describing phase separation phenomena, 
+which servers as a core tool in diverse branches of natural sciences. 
+The numerical simulation of Allen-Cahn equation is of great importance but poses significant challenges due to the strong nonlinearity and the presence of logarithmic singularities at $u=0,1$ in Flory-Huggins potential. 
+In this paper, we consider convex splitting schemes to preserve this bound and guarantee unconditional unique solvability, 
+which reduces the numerical simulation to solving the nonlinear system arising from spatial discretization at each time step. 
+We propose an iterative solver that is specially designed for singular nonlinear systems based on the alternating direction method of multipliers (ADMM) with the cell-centered finite difference (CCFD) method in spatial discretization. 
+Our theoretical contributions are twofold: (a) a proof of the well-posedness and discrete energy stability to the convex splitting scheme; 
+(b) a rigorous establishment of the unconditional linear convergence and bound-preserving property for the embedded ADMM solver, 
+effectively liberating it from time-step constraints or strict separation conditions. 
+Comprehensive numerical experiments serve to validate our proposed ADMM framework, where its theoretical predictions are fully borne out in practice, 
+showcasing superior efficiency and robustness.
 
 \end{abstract}
 

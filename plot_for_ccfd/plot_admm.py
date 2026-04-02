@@ -67,7 +67,7 @@ def create_contour_plots_combined(u, x, y, time_indices):
     # 创建每个时间步的等高线图
     for i, t in enumerate(time_indices):
         contour = axes[i].contourf(X, Y, u[t], 20, cmap='viridis', vmin=vmin, vmax=vmax)
-        axes[i].set_title(f't = {t}', fontsize=12)
+        axes[i].set_title(f'time step = {t}', fontsize=12)
         axes[i].set_xlabel('x', fontsize=10)
         axes[i].set_ylabel('y', fontsize=10)
         axes[i].set_aspect('equal')  # 保持纵横比
@@ -106,15 +106,15 @@ def create_separate_plots(u, x, y, time_indices):
         ax.set_xlabel('x')
         ax.set_ylabel('y')
         plt.colorbar(contour, ax=ax)
-        plt.tight_layout()
+        # plt.tight_layout()
         plt.savefig(os.path.join(output_dir, f"admm_t_{time}.png"), dpi=300)
-        plt.close()
+        # plt.close()
         print(f"已生成单张图: admm_t_{time}.png")
 
 def main():
     """主函数"""
     # 加载数据
-    data_file = "H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/data/data_ccfd_admm_parallel.txt"
+    data_file = "H:/undergraduate/scientific_research/allen_cahn_equation_simulation/results/data/data_ccfd_admm_adaptive.txt"
     if not os.path.exists(data_file):
         print(f"数据文件 {data_file} 不存在")
         print("请先运行C++程序生成数据")
@@ -124,7 +124,7 @@ def main():
     print(f"数据形状: u({u.shape}), x({x.shape}), y({y.shape})")
     
     # 选择要可视化的时间点：0,10,20,30,40,50
-    time_indices = [0, 10, 20, 30, 40, 50]
+    time_indices = [0, 30, 60, 90, 120, 139]
     
     # 生成组合图（6幅图一起展现）
     create_contour_plots_combined(u, x, y, time_indices)

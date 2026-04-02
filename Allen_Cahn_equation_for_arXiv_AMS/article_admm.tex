@@ -68,31 +68,33 @@ where $\rho>0$ is the penalty parameter. We employ the standard ADMM framework \
 \begin{subequations}
     \begin{align}
         \label{eq:subp1}
-        &u_1^{(k+1)}=\arg \min_{u_1\in \ch} \mathcal{L}_{\rho}(u_1,u_2^{(k)};u_3^{(k)}),\\
+        &u_2^{(k+1)}=\arg \min_{u_2\in \ch} \mathcal{L}_{\rho}(u_1^{(k)},u_2;u_3^{(k)}),\\
         \label{eq:subp2}
-        &u_2^{(k+1)}=\arg \min_{u_2\in \ch} \mathcal{L}_{\rho}(u_1^{(k+1)},u_2;u_3^{(k)}),\\
+        &u_1^{(k+1)}=\arg \min_{u_1\in \ch} \mathcal{L}_{\rho}(u_1,u_2^{(k+1)};u_3^{(k)}),\\
         &u_3^{(k+1)}=u_3^{(k)}+\alpha\rho(u_1^{(k+1)}-u_2^{(k+1)}),
     \end{align}
 \end{subequations}
 where $\alpha\in(0,\frac{\sqrt{5}+1}{2})$ is the step size for multiplier update.
 \par The efficiency of our ADMM implementation hinges on solving the two subproblems in \eqref{eq:subp1} and \eqref{eq:subp2}. 
 We solve them by exploiting their distinct mathematical structures.
-\par The $u_1$-update results in a symmetric positive-definite linear system, i.e., 
-    \begin{equation}
-    \label{eq:u1}
-        (\frac{1}{\tau}-\epsilon^2\Delta_h+\rho)u_1^{(k+1)}=\frac{1}{\tau}u^n+\rho u_2^{(k)}-u_3^{(k)},
-    \end{equation}
-which we solve with a preconditioned conjugate gradient (PCG) method \cite{concus1976generalized}. 
-For uniform grids, this system is circulant and can be solved via discrete fast Fourier transform (FFT) techniques \cite{cooley1965algorithm}.
 \par The first-order optimality condition for the $u_2$-update is given  by
 \begin{equation}
     \label{eq:u2}
     \log(u_2^{(k+1)})-\log(1-u_2^{(k+1)})+
-    \theta(1-2u^n)-u_3^{(k)}-\rho(u_1^{(k+1)}-u_2^{(k+1)})=0,
+    \theta(1-2u^n)-u_3^{(k)}-\rho(u_1^{(k)}-u_2^{(k+1)})=0,
 \end{equation}                                                            
 Specifically, the optimality condition \eqref{eq:u2} reduces to solving a set of independent, one-dimensional nonlinear equations at each grid point $\{(i,j)|0\leq i,j \leq N-1\}$, 
 completely decoupling the global problem into $N^2$ independent scalar equations. 
 This allows us to solve all $N^2$ equations in parallel, each using a few steps of a safeguarded one-dimensional Newton's method \cite{dennis1996numerical,ortega2000iterative}.
+
+\par The $u_1$-update results in a symmetric positive-definite linear system, i.e., 
+    \begin{equation}
+    \label{eq:u1}
+        (\frac{1}{\tau}-\epsilon^2\Delta_h+\rho)u_1^{(k+1)}=\frac{1}{\tau}u^n+\rho u_2^{(k+1)}-u_3^{(k)},
+    \end{equation}
+which we solve with a preconditioned conjugate gradient (PCG) method \cite{concus1976generalized}. 
+For uniform grids, this system is circulant and can be solved via discrete fast Fourier transform (FFT) techniques \cite{cooley1965algorithm}.
+
 \par To summarize, we present the detailed process of the iterative solver based on ADMM framework in \Cref{alg:ADMM}.
 \begin{algorithm}[!t]
     \caption{Iterative solver based on ADMM framework}
@@ -100,20 +102,19 @@ This allows us to solve all $N^2$ equations in parallel, each using a few steps 
     \raggedright
     1. Define $u_1^{(0)}=u^n$, $u_2^{(0)}=u^n$, and
     $u_3^{(0)}=0$.\\
-    2. Select $\rho\in(0,+\infty)$.\\
-    3. For $k\in\mathbb{N}$, update $u_1$ by solving the linear system
+    2. Select $\rho\in(0,+\infty), \alpha \in (0,\frac{\sqrt{5}+1}{2})$.\\
+    3. For $k\in\mathbb{N}$, update $u_2$ by solving the nonlinear system
     \begin{equation}
-    \label{u1}
-        (\frac{1}{\tau}-\epsilon^2\Delta_h+\rho)u_1^{(k+1)}=\frac{1}{\tau}u^n+\rho u_2^{(k)}-u_3^{(k)},
-    \end{equation}
-    \hspace{10pt} for $u_1^{(k+1)}\in\ch$ with PCG or FFT.\\
-    4. Update $u_2$ by solving the nonlinear system
-    \begin{equation}
-    \label{eq:u2}
     \log(u_2^{(k+1)})-\log(1-u_2^{(k+1)})+
-    \theta(1-2u^n)-u_3^{(k)}-\rho(u_1^{(k+1)}-u_2^{(k+1)})=0,
+    \theta(1-2u^n)-u_3^{(k)}-\rho(u_1^{(k)}-u_2^{(k+1)})=0,
     \end{equation}
     \hspace{10pt} for $u_2^{(k+1)}\in\ch$ with one-dimensional Newton's method at each grid point.\\
+    4. For $k\in\mathbb{N}$, update $u_1$ by solving the linear system
+    \begin{equation}
+    \label{u1}
+        (\frac{1}{\tau}-\epsilon^2\Delta_h+\rho)u_1^{(k+1)}=\frac{1}{\tau}u^n+\rho u_2^{(k+1)}-u_3^{(k)},
+    \end{equation}
+    \hspace{10pt} for $u_1^{(k+1)}\in\ch$ with PCG or FFT.\\ 
     5. Update the Lagrange multipliers $u_3^{(k+1)}\in\ch$ as
     \begin{equation}\label{eq:u3}
     u_3^{(k+1)}=u_3^{(k)}+\alpha \rho(u_1^{(k+1)}-u_2^{(k+1)}).
