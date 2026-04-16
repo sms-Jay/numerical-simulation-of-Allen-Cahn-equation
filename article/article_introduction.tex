@@ -1,0 +1,102 @@
+\section{Introduction}
+\label{section:introduction}
+Phase field models \cite{chen2002phase,steinbach2013phase} were introduced to describe the diffusive nature of interfaces between two phases. 
+It is known that the Allen-Cahn equation \cite{allen1979microscopic} serves as a fundamental phase field model. 
+In this paper, we consider the Allen-Cahn equation of the form
+\begin{align}\label{eq:ac}
+      \begin{cases}
+    \frac{\partial u}{\partial t}-\epsilon^2\Delta u+f(u)=0, &\qquad (x,t)\in \Omega \times (0,+\infty),\\
+    u|_{t=0}=u_0,&\qquad x\in \Omega,
+\end{cases}
+\end{align}
+where the domain $\Omega \subset \mathbb{R}^d$, $d=2,3$. $u=u(x,t)$ is the concentration of a phase in a two-phase system and $u_0$ is the initial data. 
+The parameter $\epsilon^2>0$ is constant which governs the typical length scale of an interface in the dynamical evolution \cite{wang1993thermodynamically,wheeler1992phase}. 
+The nonlinear term $f(u)$ is the derivative of a potential function $F(u)$. 
+\par Though the double-well potential is simpler because of its polynomial form, the Flory-Huggins potential is more realistic from the physical viewpoint \cite{flory1942thermodynamics}. 
+The logarithmic Flory-Huggins free energy potential is of the form
+\begin{equation}
+    F(u)=u\log(u)+(1-u)\log(1-u)+\theta(u-u^2),
+\end{equation}
+where $\theta>2$ is the energy parameter, and respectively,
+\begin{equation}
+    f(u)=\log(u)-\log(1-u)+\theta(1-2u).
+\end{equation}
+Defining the continuous energy function,
+\begin{equation}
+    E(u)=\int_{\Omega} (F(u)+\frac{\epsilon^2}{2}|\nabla u|^2)\text{d}x.
+\end{equation}
+we then obtain the following natural energy dissipation property \cite{allen1979microscopic}.
+\begin{proposition}[Continuous energy stability]\label{prop:sta}
+    The energy of a smooth solution $u$ to \eqref{eq:ac} is dissipated with time.
+\end{proposition}
+\begin{proof}
+    By definition, 
+    \begin{equation}
+        \begin{aligned}
+        \frac{\partial E(u)}{\partial t}
+        &=\int_{\Omega}(f(u) - \epsilon^2\Delta u)\frac{\partial u}{\partial t}\text{d}x\\
+        &=-\int_{\Omega}|\frac{\partial u}{\partial t}|^2\text{d}x\\
+        &\leq 0.
+    \end{aligned}
+    \end{equation}
+\end{proof}
+Since the equation plays a key role in phase field models and phase transition simulations, 
+theoretical analysis and numerical studies concerning it are particularly important. 
+A ideal numerical algorithm for the simulation of Allen-Cahn equation with Flory-Huggins potential should possess the following desirable properties: 
+(a) bound preserving property: the logarithmic term confines the solution to $0<u<1$,  so the numerical scheme should preserve this bound; 
+(b) discrete energy stability: corresponding to the continuous energy stability \cite{provatas2011phase}. 
+In what follows, we review some recent work on numerical simulations of Allen-Cahn equation.
+\par In \cite{guillen2013linear,yang2017numerical}, 
+the so-called invariant energy quadratization (IEQ) method was proposed. 
+This method has been widely applied in numerous numerical simulation scenarios, such as molecular beam epitaxy (MBE) \cite{yang2017numerical} and crystal growth \cite{zhao2017numerical,zhao2018general}. 
+The basic idea is to introduce some auxiliary variables (SAV) \cite{shen2018scalar} to transform the original free energy functional into a quadratic form. 
+Despite its significant success in numerical simulations, the method has two limitations: 
+(a) the scheme ensures stability only for the transformed discrete energy, but may not for the discrete energy of the original formulation 
+\cite{yang2017numerical,wang2020stabilized}; 
+(b) the time step size required to satisfy the maximum principle \cite{chen1992generation,nishiura1987stability} is restricted by a uniform constant, 
+which introduces a trade-off between stability and computational efficiency.
+\par Reference \cite{du2019maximum} introduced the first order exponential time differencing (ETD1) method for the nonlocal Allen-Cahn equation \cite{kroemer2025quantitative}. 
+The scheme is shown to preserve the maximum principle and exhibit asymptotic compatibility. 
+Unfortunately, this article only investigates the Allen-Cahn equation with the double-well potential. 
+Upon reflection, we find that for the Allen-Cahn equation with Flory-Huggins potential, the algorithm faces limitations, 
+because the validity of the discrete maximum principle requires the potential term to be bounded, 
+a property that the Flory–Huggins potential does not satisfy. 
+Furthermore, the maximum principle is only theoretically guaranteed, which means, 
+in numerical practice, we need the solution strictly satisfy the separation property, i.e. $\|u\|_{\infty}\leq 1-\delta$ for sufficiently small $\delta$.
+\par \cite{li2022stability} proposed an algorithm based on operator splitting methods \cite{macnamara2017operator}. 
+It applied the Strang splitting discretization \cite{strang1968construction} for second-order in time splitting methods. 
+The merits of the proposed algorithm include its simplicity, its preservation of the maximum principle and discrete energy dissipation, as well as its proven convergence. 
+Nonetheless, the method exhibits a shortcoming: the maximum principle is contingent upon a time step restriction. 
+Consequently, this imposes challenges for long-time simulations and for computations employing large time steps.
+\par A recent work \cite{wang2020stabilized} introduced the stabilized energy factorization (SEF) approach. 
+Its core idea is to factorize the energy functional into a product of several factors  \cite{kou2020novel}, 
+with each factor handled individually based on its unique property. 
+This approach offers multiple benefits: linear semi-implicit scheme, preservation of the discrete maximum principle and discrete energy stability, as well as convergence property. 
+However, in the paper, the stability parameter condition required for the maximum principle is stringent and difficult to choose in practical computations \cite{wang2020stabilized}. 
+Moreover, the algorithm struggles to fully overcome the numerical instability caused by the singularity at $u=0,1$.
+\par The convex splitting scheme was initially proposed in the study of unconditionally energy stable schemes for the Cahn-Hilliard equation by Eyre \cite{eyre1998unconditionally}, 
+and was subsequently successfully extended and applied to various phase field models \cite{chen2012linear,shen2012second,baskaran2013convergence}. 
+The fundamental principle of the convex splitting approach is to express the energy functional as the sum of a convex and a concave contribution. 
+Correspondingly, the convex part is handled implicitly and the concave part explicitly, 
+leading to a semi-implicit scheme known as a convex splitting scheme, 
+which possesses several desirable properties, such as unique solvability and discrete energy stability \cite{eyre1998unconditionally,du2020phase}. 
+Applying this method to the Allen-Cahn equation with Flory-Huggins potential results in a nonlinear discrete system at each time step, 
+which necessitates iterative solvers. 
+Solving such a system is complex and difficult, primarily due to the strong nonlinearity of the logarithmic potential term and its singularity at $u=0,1$.
+
+\par In this paper, inspired by the idea in \cite{li2025overcoming}, we present a novel iterative solver for the nonlinear system at each time step arising from the application of the convex splitting scheme to the Allen-Cahn equation with Flory-Huggins potential. 
+We reformulate this nonlinear system equivalently as a convex optimization problem for finding a minimizer. 
+To solve this optimization problem, we employ the alternating direction method of multipliers (ADMM) framework \cite{neal2011distributed}. 
+More specifically, the objective functional is decomposed into a linear part and a logarithmic part. 
+The subproblem corresponding to the linear part is solved efficiently with the fast Fourier transform (FFT) techniques \cite{cooley1965algorithm}, due to its coefficient matrix. 
+For the logarithmic part, the corresponding subproblem is reduced to solving multiple one-dimensional equations with a monotonic derivative, 
+which enables us to apply the Newton's method to each equation \cite{dennis1996numerical,ortega2000iterative} in parallel.
+\par The remainder of this paper is organized as follows. 
+In \Cref{section:discrete}, we present the problem formulation and introduce the discrete function spaces and operators within the framework of the cell-centered finite difference (CCFD) method in spatial discretization. 
+\Cref{section:admm} details the convex splitting scheme for the equation and our novel iterative solver. 
+% for comparative purposes, we also describe the conventional solver based on high-dimensional Newton's method. 
+\Cref{section:analysis} provides a theoretical analysis of the scheme, addressing the well-posedness and discrete energy stability of the convex splitting scheme.
+More importantly, we prove the unconditional linear convergence of the iterative solver. 
+Numerical experiments that illustrate the effectiveness and robustness of the proposed solver are reported in \Cref{sec:numerical}. 
+Finally, \Cref{section:conclusion} offers some concluding remarks.
+

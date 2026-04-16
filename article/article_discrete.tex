@@ -1,0 +1,150 @@
+\section{Discrete Function Spaces and Discrete Operators}
+\label{section:discrete}
+In this section, we introduce the discrete function spaces and discrete operators within the framework of CCFD method \cite{tryggvason2011direct}. 
+The following notations are partially taken from \cite{chen2019positivity,li2025overcoming}.
+\par We only present the two-dimensional case here, but the forms of the three-dimensional case are similar. 
+The problem we consider in this paper is defined on a square domain $\Omega=(0,L)^2$ where $L>0$ is the width of domain, 
+with periodic boundary conditions imposed. Under this configuration, the equations are cast into the following system form.
+
+\begin{align}
+\begin{cases}
+    \frac{\partial u}{\partial t}-\epsilon^2\Delta u+\log(u)-\log(1-u)+\theta(1-2u)=0,\quad &(x,y)\in \Omega,\quad t>0,\\
+    u(x,y,0)=u_0(x,y),&(x,y)\in\Omega,\\
+    u(x,y,t)=u(x+L,y,t)=u(x,y+L,t),\quad &(x,y)\in \mathbb{R}^2,\quad t>0.
+\end{cases}
+\end{align}
+For simplicity, we use the uniform division with the mesh size denoted by $h=\frac{L}{N}$, where $N\in \mathbb{N}_{+}$. In the CCFD method, the grid points and intermediate points are denoted by
+\begin{subequations}
+    \begin{align}
+    &(x_i,y_j)=(ih,jh),\quad 0\leq i,j\leq N,\\
+    &(x_{i+\frac{1}{2}},y_{j+\frac{1}{2}})=(x_i+\frac{1}{2}h,y_j+\frac{1}{2}h),\quad 0\leq i,j\leq N-1,
+\end{align}
+\end{subequations}
+We introduce the following two uniform grids,
+\begin{equation}
+    E=\{p_{i+\frac{1}{2}}=ih|i\in \mathbb{Z}\},
+    \quad C=\{p_{i}=(i-\frac{1}{2})h|i\in \mathbb{Z}\},
+\end{equation}
+Thus we define four $2$D discrete $N^2$-periodic function spaces,
+\begin{subequations}
+    \begin{align}
+    &\ch=\{\phi:C\times C\rightarrow \mathbb{R}|\phi_{i,j}=\phi_{i+\lambda N,j+\mu N},\forall i,j,\lambda, \mu\in\mathbb{Z}\},\\
+    &\ehx=\{\phi:E\times C\rightarrow \mathbb{R}|\phi_{i+\frac{1}{2},j}=\phi_{i+\frac{1}{2}+\lambda N,j+\mu N},\forall i,j,\lambda, \mu\in\mathbb{Z}\},\\
+    &\ehy=\{\phi:C\times E\rightarrow \mathbb{R}|\phi_{i,j+\frac{1}{2}}=\phi_{i+\lambda N,j+\frac{1}{2}+\mu N},\forall i,j,\lambda, \mu\in\mathbb{Z}\},\\
+    &\eh=\ehx\times \ehy,
+\end{align} 
+\end{subequations}
+where $\phi_{i,j}=\phi(p_i,p_j)$ is a grid function.
+\par For $\phi \in \ch$, the discrete spatial difference operator in the $x$-direction is defined as
+\begin{equation}
+    \begin{aligned}
+        D_x:\ch&\rightarrow\ehx\\
+        \phi&\mapsto(D_x \phi)_{i+\frac{1}{2},j}=\frac{1}{h}(\phi_{i+1,j}-\phi_{i,j})
+    \end{aligned}
+\end{equation}
+    
+
+as for the $y$-direction,\begin{equation}
+    \begin{aligned}
+        D_y:\ch&\rightarrow\ehy\\
+        \phi&\mapsto(D_y \phi)_{i,j+\frac{1}{2}}=\frac{1}{h}(\phi_{i,j+1}-\phi_{i,j})
+    \end{aligned}
+\end{equation}
+The discrete gradient operator is defined as
+\begin{equation}
+    \begin{aligned}\nabla_h:\ch&\rightarrow\eh\\
+    \phi&\mapsto(D_x\phi,D_y\phi)
+    \end{aligned}
+\end{equation}
+For $\phi \in \ehx$, the discrete spatial difference operator in the $x$-direction is defined as
+\begin{equation}
+    \begin{aligned}
+        d_x:\ehx&\rightarrow\ch\\
+        \phi&\mapsto(d_x\phi)_{i,j}=\frac{1}{h}(\phi_{i+\frac{1}{2},j}-\phi_{i-\frac{1}{2},j})
+    \end{aligned}
+\end{equation}
+Similarly, for $\phi \in \ehy$, the discrete spatial difference operator in the $y$-direction is defined as
+\begin{equation}
+    \begin{aligned}
+        d_y:\ehy&\rightarrow\ch\\
+        \phi&\mapsto(d_y\phi)_{i,j}=\frac{1}{h}(\phi_{i,j+\frac{1}{2}}-\phi_{i,j-\frac{1}{2}})
+    \end{aligned}
+\end{equation}
+Thus for $\vec{f}=(f^x,f^y)\in\eh$, the discrete divergence operator can be written as\begin{equation}
+    \begin{aligned}
+        \nabla_h\cdot:\eh&\rightarrow\ch\\
+        \vec{f}&\mapsto\nabla_h\cdot \vec{f}=d_xf^x+d_yf^y
+    \end{aligned}
+\end{equation}
+Following from the discrete operators above, the 2D discrete Laplacian is naturally given by
+\begin{equation}
+    \begin{aligned}
+        \Delta_h:\ch&\rightarrow\ch\\
+        \phi&\mapsto (\Delta_h \phi)_{i,j}\\
+        &=(\nabla_h\cdot \nabla_h \phi)_{i,j}\\
+        &=\frac{1}{h^2}(\phi_{i+1,j}+\phi_{i-1,j}+\phi_{i,j+1}+\phi_{i,j-1}-4\phi_{i,j})
+    \end{aligned}
+\end{equation}
+\par Over the domain $\Omega$ with periodic boundary conditions, we define the following gird inner products,
+\begin{subequations}
+    \begin{align}
+        \langle \phi,\phi'\rangle_h&=h^2\sum_{i,j=1}^N \phi_{i,j}\phi'_{i,j},\qquad \phi,\phi'\in \ch,\\
+        \langle \phi,\phi'\rangle_h&=h^2\sum_{i,j=1}^N \phi_{i+\frac{1}{2},j}\phi'_{i+\frac{1}{2},j},\qquad \phi,\phi'\in \ehx,\\
+        \langle \phi,\phi'\rangle_h&=h^2\sum_{i,j=1}^N \phi_{i,j+\frac{1}{2}}\phi'_{i,j+\frac{1}{2}},\qquad \phi,\phi'\in \ehy,\\
+        \langle \vec{f_1},\vec{f_2}\rangle_h&=\langle f_1^x,f_2^x\rangle_h + \langle f_1^y,f_2^y\rangle_h,\qquad \vec{f_1},\vec{f_2}\in \eh,
+    \end{align}
+\end{subequations}
+These discrete inner products induce, in the canonical way, the corresponding discrete norms.
+\begin{subequations}
+    \begin{align}
+        \|\phi\|_h&=\sqrt{\langle \phi,\phi \rangle_h},\qquad \phi\in \ch,\\
+        \|\vec{f}\|_h&=\sqrt{\langle \vec{f},\vec{f} \rangle_h},\qquad \vec{f}\in \eh,
+    \end{align}
+\end{subequations}
+
+\begin{proposition}[Summation by parts formula]
+\label{prop:sbp}
+    For grid functions $\phi \in\ch,\vec{f}\in \eh$, the following summation by parts formula is valid:
+    \begin{equation}\label{eq:sbp}
+        \langle \phi,\nabla_h \cdot \vec{f}\rangle_h=
+        -\langle \nabla_h\phi, \vec{f}\rangle_h.
+    \end{equation}
+\end{proposition}
+\begin{proof}
+\begin{equation}
+    \begin{aligned}
+        &\langle \phi,\nabla_h \cdot \vec{f}\rangle_h \\    
+        =&h^2\sum_{i,j=1}^N  \phi_{i,j}\frac{1}{h}(f^x_{i+\frac{1}{2},j}-f^x_{i-\frac{1}{2},j}
+        )+h^2\sum_{i,j=1}^N \phi_{i,j}\frac{1}{h}(f^y_{i,j+\frac{1}{2}}-f^y_{i,j-\frac{1}{2}}
+        )\\
+        =&h^2\sum_{i,j=1}^N \frac{1}{h}(\phi_{i,j}-\phi_{i+1,j})f^x_{i+\frac{1}{2},j}+h^2\sum_{i,j=1}^N \frac{1}{h}(\phi_{i,j}-\phi_{i,j+1})f^y_{i,j+\frac{1}{2}}\\
+        =&-h^2\sum_{i,j=1}^N (D_x \phi)_{i+\frac{1}{2},j}
+        f^x_{i+\frac{1}{2},j}
+        -h^2\sum_{i,j=1}^N (D_y \phi)_{i,j+\frac{1}{2}}
+        f^y_{i,j+\frac{1}{2}}\\
+        =&-\langle \nabla_h \phi, \vec{f} \rangle_h
+    \end{aligned}
+\end{equation}
+    
+\end{proof}
+\begin{corollary}
+    For grid functions $\phi,\psi\in\ch$, the following summation by parts formula is valid \cite{morton1994numerical}:
+    \begin{equation}\label{eq:sbp2}
+        \langle \phi,\Delta_h \psi\rangle_h=
+        -\langle \nabla_h\phi, \nabla_h \psi \rangle_h.
+    \end{equation}
+\end{corollary}
+\begin{proof}
+    Take $\vec{f}=\nabla_h \psi$ in \eqref{eq:sbp}.
+\end{proof}
+\begin{corollary}
+    The discrete operator $-\Delta_h$ is positive semi-definite on $\ch$ \cite{morton1994numerical}.
+\end{corollary}
+\begin{proof}
+    Take $\psi=\phi$ in \eqref{eq:sbp2}, we arrive at that for any grid function $\phi \in \ch$,
+    \begin{equation}
+        \langle \phi,-\Delta_h \phi\rangle_h=
+        \|\nabla_h \phi\|_h^2\geq0.
+    \end{equation}
+    Equality holds if and only if $\phi$ is constant on $\ch$.
+\end{proof}

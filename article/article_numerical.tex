@@ -1,0 +1,384 @@
+\section{Numerical results}
+\label{sec:numerical}
+This section presents numerical experiments designed to validate the theoretical analysis and evaluate the practical performance of the proposed algorithm. 
+Specifically, we verify its core properties including linear convergence, bound-preserving property, and energy stability in \Cref{subsec:test}. 
+Numerical simulations in two-dimensional and three-dimensional settings are demonstrated in \Cref{subsec:2d} and \Cref{subsec:3d}, respectively, 
+illustrating the effectiveness and robustness of our solver.
+
+
+\subsection{Convergence test}
+\label{subsec:test}
+In this numerical experiment, the parameters are set as follows:
+\begin{equation}
+    L=2\pi, \epsilon=0.10, \tau=10^{-4}, T=0.1, \theta=4.0.
+\end{equation}
+The initial condition is
+\begin{equation}
+    u_0(x,y)=0.5+0.25\sin(x)\sin(y).
+\end{equation}
+\par For the iterative solver, the penalty parameter $\rho$ is dynamically updated based on the primal and dual residuals to ensure balanced convergence. \\
+The convergence criterion is set as
+\begin{equation}
+    \max\{r,s\}\leq \gamma=10^{-8},
+\end{equation}
+where $r=\|u_1^{(k)}-u_2^{(k)}\|_h$ and $s=\|u_1^{(k)}-u_1^{(k-1)}\|_h$ denote the primal residual and the dual residual, respectively.
+\par The numerical solution obtained with $N=512,\tau=10^{-4}$ is taken as the exact solution, and the spatial convergence rate is tested for $N=16,32,64,128,256$.
+The temporal convergence order test is analogous.
+The test results, displayed in \Cref{ta:rate}, confirm the second order in space and first order in time for our solver.
+\par Fixing $N=256$ and $\tau = 0.01$, we show the linear convergence and other properties of the algorithm in \Cref{fig:1}.
+From \Cref{fig:11}, we see the number of ADMM iterations at each time step, which speaks to the algorithm's effectiveness. 
+The discrete energy, plotted in \Cref{fig:12}, decays monotonically as expected, confirming energy stability.
+\Cref{fig:13} and \Cref{fig:14} traces the maximum and minimum of $u$ over time, both staying safely within the physical bounds $(0,1)$, demonstrating the bound-preserving property. 
+\Cref{fig:15} displays the primal residual during the second time step; 
+its linear decay on a semi-log scale indicates a linear convergence rate.
+Finally, \Cref{fig:16} captures the dynamial evolution process of the phase variable at different time steps.
+\begin{table}
+    \centering
+    \begin{tabular}{|c|c|c||c|c|c|}
+    \hline
+    \multicolumn{3}{|c||}{Spatial convergence}  & \multicolumn{3}{|c|}{Temporal convergence} \\
+    \hline
+    $h$&Error&Rate&$\tau$&Error&Rate\\
+    \hline
+    2$\pi$/16&3.026E-2&-&0.02&4.336E-2&-\\
+    \hline
+    2$\pi$/32&7.635E-3&1.99&0.02/2&2.246E-2&0.95\\
+    \hline
+    2$\pi$/64&1.918E-3&1.99&0.02/4&1.086E-2&1.05\\  
+    \hline
+    2$\pi$/128&4.853E-4&1.98&0.02/8&4.741E-3&1.20\\
+    \hline
+    2$\pi$/256&1.282E-4&1.92&0.02/16&1.595E-3&1.57\\
+    \hline
+
+    \end{tabular}
+    \caption{Errors and convergence rates.}
+    \label{ta:rate}
+\end{table}
+
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_iterations_1.pdf}
+        \caption{The number of iterations over time $t$.}
+        \label{fig:11}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/energy_curve_1.pdf}
+        \caption{The energy over time $t$.}
+        \label{fig:12}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/bounds_upper_1.pdf}
+        \caption{$1-\max (u)$ over time $t$.}
+        \label{fig:13}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/bounds_lower_1.pdf}
+        \caption{$\min (u)$ over time $t$}
+        \label{fig:14}
+    \end{subfigure}
+    \vspace{0.5cm}
+
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_convergence_1.pdf}
+        \caption{The primal residual in the second time step.}
+        \label{fig:15}
+    \end{subfigure}
+    
+    \caption{Convergence test}
+    \label{fig:1}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figure/admm_evolution_1.pdf}
+    \caption{The dynamial evolution over time $t$.}
+    \label{fig:16}
+    \hfill
+\end{figure}
+
+
+\subsection{Two-dimensional simulation}
+\label{subsec:2d}
+In this numerical experiment, we show a two-dimensional simulation process here.
+\par The following parameters are adopted in this example:
+\begin{equation}
+L=2.0, N=512,\epsilon=0.05, \tau=0.1, T=100.
+\end{equation}
+The parameter $\theta$ is chosen as the variable parameter in this experiment, which is taken as $\theta=3.0,4.0,5.0$. 
+Notice that the time step $\tau=0.1$ is significantly large, 
+which verifies that our method has no requirement for the time step.
+\par The initial condition is
+\begin{equation}
+    u_0(x,y)=0.01+0.98\text{rand}(x,y).
+\end{equation}
+where $\text{rand}(x, y)$ is the function producing the random numbers in $(0,1)$. 
+\par We set the convergence criterion for \Cref{alg:ADMM} as:
+\begin{equation}
+\max\{r,s\}\leq \gamma=10^{-8}.
+\end{equation}
+
+For $\theta=3.0$, the number of iterations, the energy, $1-\max (u)$ and $\min (u)$ over time $t$ are given in \Cref{fig:2_1}.
+The dynamic evolution of the phase variable is depicted in \Cref{fig:2_2} for different choices of $\theta$.
+
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_iterations_2.pdf}
+        \caption{The number of iterations over time $t$.}
+        \label{fig:21}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/energy_curve_2.pdf}
+        \caption{The energy over time $t$.}
+        \label{fig:22}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/bounds_upper_2.pdf}
+        \caption{$1-\max (u)$ over time $t$.}
+        \label{fig:23}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/bounds_lower_2.pdf}
+        \caption{$\min (u)$ over time $t$}
+        \label{fig:24}
+    \end{subfigure}
+    \vspace{0.5cm}
+    
+    \caption{2D simulation}
+    \label{fig:2_1}
+\end{figure}
+
+
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.78\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_evolution_2_3.0.pdf}
+        \caption{$\theta=3.0$}
+        \label{fig:25}
+    \end{subfigure}
+    \hfill
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.78\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_evolution_2_4.0.pdf}
+        \caption{$\theta=4.0$}
+        \label{fig:26}
+    \end{subfigure}
+    \hfill
+
+    \vspace{0.5cm}
+
+    \begin{subfigure}[b]{0.78\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_evolution_2_5.0.pdf}
+        \caption{$\theta=5.0$}
+        \label{fig:27}
+    \end{subfigure}
+    
+    \caption{2D simulation: the dynamial evolution over time $t$.}
+    \label{fig:2_2}
+\end{figure}
+
+\iffalse 
+\subsection{long simulation}\label{subsec:Adaptive}
+In this experiment, we adopt an adaptive time-stepping strategy to demonstrate the high efficiency of the algorithm. 
+The parameters we adopted are set as
+\begin{equation}
+L=2.0, N=256,\epsilon = 0.05, \tau^0=1.0,\theta=4.0, T=10^{12}.
+\end{equation}
+\par The initial condition is
+\begin{align}
+u_0(x,y)=
+\begin{cases}
+    10^{-5},&\text{if}\quad |x-1|\leq 0.35, |y-1|\leq 0.35,\\
+    1-10^{-5},&\text{otherwise}
+\end{cases}
+\end{align}
+which is taken from \cite{wang2020stabilized}.
+Numerical experiments indicate that the two-phase evolution under this initial condition requires long-time simulation. 
+Hence, we employ this example to perform adaptive time-stepping simulation, 
+which dynamically adjusts the time step based on the energy decrement to maintain accuracy while reducing computational cost.
+To be more precise, the adaptive adjustment procedure is:
+\begin{align}
+\tau^{n+1}=
+\begin{cases}
+\min \{\beta_1 \tau^{n},\tau_{\max}\},&\text{if} \quad |\frac{E_h^{n-1}-E_h^n}{E_h^{n-1}}|<\gamma_1,\\
+\max \{\beta_2 \tau^{n},\tau_{\min}\},&\text{if} \quad |\frac{E_h^{n-1}-E_h^n}{E_h^{n-1}}|>\gamma_2,\\
+\tau^n,&\text{otherwise},
+\end{cases}
+\end{align}
+where $\beta_1=2.0,\tau_{\max}=10^{10},\gamma_1=0.1,\beta_2=0.5,\tau_{\min}=10^{-3},\gamma_2=0.2$.
+\par The numerical results are shown in \Cref{fig:4}. 
+The same observations as in \Cref{subsec:test} hold here, that is, 
+the results confirm linear convergence, energy stability, and the bound-preserving property of the scheme from \Cref{fig:41} to \Cref{fig:44}.
+The evolution of the phase field variable over time is shown in \Cref{fig:45}, where the square-shaped phase is seen to rapidly shrink into a circular one.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_iterations_adaptive.png}
+        \caption{The number of iterations}
+        \label{fig:41}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/bounds_preservation_adaptive.png}
+        \caption{Bound preservation}
+        \label{fig:42}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/energy_curve_adaptive.png}
+        \caption{Energy stability}
+        \label{fig:43}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_convergence_adaptive.png}
+        \caption{Primal residual}
+        \label{fig:44}
+    \end{subfigure}
+    \vspace{0.5cm}
+
+    \begin{subfigure}[b]{1.00\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_evolution_test_4.png}
+        \caption{Dynamical evolution}
+        \label{fig:45}
+    \end{subfigure}
+    
+    \caption{Adaptive time-stepping simulation}
+    \label{fig:4}
+\end{figure}
+
+\fi
+
+
+
+\subsection{Three-dimensional simulation}
+\label{subsec:3d}
+We present a numerical simulation experiment in a three-dimensional setting here. The parameters we adopted are 
+\begin{equation}
+L=1.0, N=64,\theta=4.0, \tau=0.01, T=0.5.
+\end{equation}
+The parameter $\epsilon$ is chosen as the variable parameter in this experiment, which is taken as $\epsilon=0.05,0.10,0.15$.
+\par The initial condition is
+\begin{equation}
+    u_0(x,y,z)=0.45+0.10\text{rand}(x,y,z).
+\end{equation}
+where $\text{rand}(x,y,z)$ is the function producing the random numbers in $(0,1)$. 
+\par The convergence criterion is:
+\begin{equation}
+\max\{r,s\}\leq \gamma=10^{-8}.
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_iterations_3.pdf}
+        \caption{The number of iterations over time $t$.}
+        \label{fig:31}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/energy_curve_3.pdf}
+        \caption{The energy over time $t$.}
+        \label{fig:32}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/bounds_upper_3.pdf}
+        \caption{$1-\max (u)$ over time $t$.}
+        \label{fig:33}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/bounds_lower_3.pdf}
+        \caption{$\min (u)$ over time $t$}
+        \label{fig:34}
+    \end{subfigure}
+    \vspace{0.5cm}
+    
+    \caption{3D simulation}
+    \label{fig:3_1}
+\end{figure}
+
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.78\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_3d_evolution_3_0.05.pdf}
+        \caption{$\epsilon=0.05$}
+        \label{fig:35}
+    \end{subfigure}
+    \hfill
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.78\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_3d_evolution_3_0.10.pdf}
+        \caption{$\epsilon=0.10$}
+        \label{fig:36}
+    \end{subfigure}
+    \hfill
+
+    \vspace{0.5cm}
+
+    \begin{subfigure}[b]{0.78\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/admm_3d_evolution_3_0.15.pdf}
+        \caption{$\epsilon=0.15$}
+        \label{fig:37}
+    \end{subfigure}
+    
+    \caption{3D simulation: the dynamial evolution over time $t$.}
+    \label{fig:3_2}
+\end{figure}
+For $\epsilon=0.05$, the number of iterations, the energy, $1-\max (u)$ and $\min (u)$ over time $t$ are given in \Cref{fig:3_1}. 
+\Cref{fig:3_2} shows the interface of $u=0.50$ by interpolating the numerical solution at different time steps from the three-dimensional simulation. 
+The results indicate that the algorithm accurately captures the dynamical process of the two-phase interface with satisfactory precision,
+which is consistent with the physical phenomenon of phase separation. In summary, the numerical result demonstrates the robustness of our solver in numerical simulation.
+
+
+
